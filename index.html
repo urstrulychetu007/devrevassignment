@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        p{
+            outline: none;
+            border: 0;
+        }
+        span:hover {background: #ccf;}
+        .context-menu {
+            position: absolute;
+            text-align: center;
+            background: lightgray;
+            border: 1px solid black;
+        }
+  
+        .context-menu ul {
+            padding: 0px;
+            margin: 0px;
+            min-width: 150px;
+            list-style: none;
+        }
+  
+        .context-menu ul li {
+            padding-bottom: 7px;
+            padding-top: 7px;
+            border: 1px solid black;
+        }
+  
+        .context-menu ul li a {
+            text-decoration: none;
+            color: black;
+        }
+  
+        .context-menu ul li:hover {
+            background: darkgray;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <p contenteditable="true" onfocus="test()" id="inputarea"></p>
+    <button onclick="clearit()">clear</button>
+    <div id="contextMenu" class="context-menu" 
+    style="display:none">
+    <ul id="corrections">
+        
+    </ul>
+</div>
+</body>
+<script>
+    var hoverwrd = ""
+    var result
+    function test()
+    {
+        $(function() {
+  $('p').html(function () {
+    var cont = [];
+    return "<span>" + $(this).text().split(" ").join("</span> <span>") + "</span>";
+  }).on("mouseover", "span", function() {
+    var hoveredWord = $(this).text();
+    hoverwrd = hoveredWord
+    // console.log(hoveredWord);
+    // translate(hoveredWord, 'en'); // function to translate a word to English Language
+  });
+});
+    }
+
+    function test1(){
+        console.log(hoverwrd)
+    }
+
+    document.onclick = hideMenu;
+        document.oncontextmenu = rightClick;
+  
+        function hideMenu() {
+            document.getElementById(
+                "contextMenu").style.display = "none"
+        }
+        function rightClick(e) {
+            e.preventDefault();
+  
+            if (document.getElementById(
+                "contextMenu").style.display == "block")
+                hideMenu();
+            else {
+                var menu = document
+                    .getElementById("contextMenu")
+                      
+                menu.style.display = 'block';
+                menu.style.left = e.pageX + "px";
+                menu.style.top = e.pageY + "px";
+            }
+            flag = false
+            if(hoverwrd.charAt(0).toUpperCase()==hoverwrd.charAt(0))
+             flag=true
+          
+            hoverwrd = hoverwrd.charAt(0).toUpperCase()+hoverwrd.slice(1)
+
+            url = 'https://api.textgears.com/spelling?text='+hoverwrd+'!&language=en-GB&whitelist=&dictionary_id=&key=O36GByeJKSoYUBda'
+                console.log(url)
+                fetch(url)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data)
+                        if (Object.keys(data['response']['errors']).length==0)
+                         hideMenu()
+                        result = data['response']['errors']['0']['better']
+                        console.log(result)
+                        document.getElementById('corrections').innerHTML = ""
+                         
+                        for(let i of result)
+                        {
+                            if(!flag)
+                            {
+                                i = i.charAt(0).toLowerCase()+i.slice(1)
+                            } 
+                            document.getElementById('corrections').innerHTML += "<li><a href='#' onclick=\"test2('"+i+"')\">"+i+"</a></li>"
+                        }
+                    });
+            
+                    if(!flag)
+                        {
+                            hoverwrd = hoverwrd.charAt(0).toLowerCase()+hoverwrd.slice(1)
+                        } 
+
+            console.log(hoverwrd)
+        }
+        function test2(clicked)
+        {
+            a = document.getElementById('inputarea').innerHTML
+            // console.log(clicked)
+            // console.log(a)
+            // span = a.split(' ')
+            str = a.replace(/<\/?span[^>]*>/g,"");
+            words = str.split(' ')
+            console.log(words)
+            finalstring = ""
+            for(let i of words)
+            {
+                if(i==hoverwrd)
+                {
+                    finalstring+="<span>"+clicked+"</span> "
+                }
+                else
+                 finalstring+="<span>"+i+"</span> "
+            }
+            console.log(finalstring)
+            document.getElementById('inputarea').innerHTML=finalstring
+            document.getElementById('corrections').innerHTML=""
+        }
+        function clearit()
+        {
+            console.log("i am here")
+            // document.
+            document.getElementById('inputarea').innerHTML=""
+        }
+</script>
+</html>
