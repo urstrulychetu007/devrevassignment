@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,12 +40,15 @@
         .context-menu ul li:hover {
             background: darkgray;
         }
+        p:empty:not(:focus)::before {
+        content: attr(data-placeholder);
+        }
     </style>
 </head>
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
-    <p contenteditable="true" onfocus="test()" id="inputarea"></p>
+    <p contenteditable="true" onfocus="test()" id="inputarea" data-placeholder="Enter text here"></p>
     <button onclick="clearit()">clear</button>
     <div id="contextMenu" class="context-menu" 
     style="display:none">
